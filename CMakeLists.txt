@@ -5,21 +5,21 @@
 cmake_minimum_required(VERSION 2.6)
 
 PROJECT(yarp_gazebo)
-#list ( APPEND CMAKE_CXX_FLAGS "-std=c++0x -Wall -pedantic -Wmissing-field-initializers -W -Wunused -Wuninitialized -Wformat=2 -Wctor-dtor-privacy -Wnon-virtual-dtor -Wwrite-strings -Wno-char-subscripts -Wreturn-type -Wcast-qual -Wcast-align -Wsign-promo -Woverloaded-virtual -fno-strict-aliasing  -Werror=address -Werror=parentheses  ${CMAKE_CXX_FLAGS}" )
-list ( APPEND CMAKE_CXX_FLAGS "-std=c++0x ")
+list ( APPEND CMAKE_CXX_FLAGS "-Wall -pedantic -Wmissing-field-initializers -W -Wunused -Wuninitialized -Wformat=2 -Wctor-dtor-privacy -Wnon-virtual-dtor -Wwrite-strings -Wno-char-subscripts -Wreturn-type -Wcast-qual -Wcast-align -Wsign-promo -Woverloaded-virtual -fno-strict-aliasing  -Werror=address -Werror=parentheses  ${CMAKE_CXX_FLAGS}" )
+
 
 find_package(YARP REQUIRED)
-find_package(Boost REQUIRED serialization)
+find_package(Boost REQUIRED serialization system)
 
 include (FindPkgConfig)
 if (PKG_CONFIG_FOUND)
   pkg_check_modules(GAZEBO gazebo)
+  pkg_check_modules(SDFORMAT sdformat)
+  pkg_check_modules(PROTOBUF protobuf)
 endif()
 
-include_directories(${GAZEBO_INCLUDE_DIRS})
-link_directories(${GAZEBO_LIBRARY_DIRS})
-
-include_directories(${YARP_INCLUDE_DIRS} include)
+include_directories(${YARP_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${GAZEBO_INCLUDE_DIRS}  ${SDFORMAT_INCLUDE_DIRS} ${PROTOBUF_INCLUDE_DIRS} include)
+link_directories(${GAZEBO_LIBRARY_DIRS} ${SDFORMAT_LIBRARY_DIRS} ${PROTOBUF_LIBRARY_DIRS})
 
 set(singleton_source        src/gazebo_plugins/Handler.cc)
 set(singleton_headers        include/gazebo_yarp_plugins/Handler.hh)
@@ -69,10 +69,10 @@ add_library(gazebo_yarp_controlboard SHARED ${controlBoard_source} ${controlBoar
 add_library(gazebo_yarp_forcetorque  SHARED ${forceTorque_source}  ${forceTorque_headers})
 add_library(gazebo_yarp_imu          SHARED ${imu_source}          ${imu_headers})
 
-
-target_link_libraries(gazebo_yarp_controlboard  singleton ${YARP_LIBRARIES} ${GAZEBO_libraries} ${Boost_LIBRARIES})
-target_link_libraries(gazebo_yarp_forcetorque   singleton ${YARP_LIBRARIES} ${GAZEBO_libraries} ForceTorquePlugin  ${Boost_LIBRARIES})
-target_link_libraries(gazebo_yarp_imu           singleton ${YARP_LIBRARIES} ${GAZEBO_libraries} ${Boost_LIBRARIES})
+target_link_libraries(singleton ${YARP_LIBRARIES} ${SDFORMAT_LIBRARIES} ${PROTOBUF_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(gazebo_yarp_controlboard singleton ${YARP_LIBRARIES} ${GAZEBO_LIBRARIES} ${SDFORMAT_LIBRARIES} ${PROTOBUF_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(gazebo_yarp_forcetorque singleton ${YARP_LIBRARIES} ${GAZEBO_LIBRARIES} ${SDFORMAT_LIBRARIES} ForceTorquePlugin ${PROTOBUF_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(gazebo_yarp_imu  singleton ${YARP_LIBRARIES} ${GAZEBO_LIBRARIES} ${SDFORMAT_LIBRARIES} ${PROTOBUF_LIBRARIES} ${Boost_LIBRARIES})
 
 add_executable(testmotor src/test/test.cpp)
 target_link_libraries(testmotor ${YARP_LIBRARIES} ${GAZEBO_libraries} ${Boost_LIBRARIES})
