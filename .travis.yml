@@ -17,9 +17,9 @@ before_script:
   - cd yarp
   - mkdir build
   - cd build
-  - cmake -DCREATE_SHARED_LIBRARY:BOOL=ON -DCMAKE_INSTALL_PREFIX="./local_install" -DCMAKE_BUILD_TYPE=${GAZEBO_YARP_PLUGINS_BUILD_TYPE} ..
+  - cmake -DCREATE_SHARED_LIBRARY:BOOL=ON -DCMAKE_BUILD_TYPE=${GAZEBO_YARP_PLUGINS_BUILD_TYPE} ..
   - make
-  - make install
+  - sudo make install
   - cd ../..  
   - mkdir build
   - cd build
